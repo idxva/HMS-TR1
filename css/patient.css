@@ -183,11 +183,10 @@ body {
 }
 .logo-badge {
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 100;
   letter-spacing: 0.06em;
   padding: 0.15rem 0.01rem;
   border-radius: var(--radius-pill);
-  color: var(--clr-muted);
   margin-left: 0.35rem;
 }
 

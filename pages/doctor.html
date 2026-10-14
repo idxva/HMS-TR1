@@ -30,11 +30,9 @@
         <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
       </svg>
     </div>
-    <div class="logo-text">Health<span>Bridge</span></div>
-    <span class="logo-badge" style="color:var(--clr-primary);border-color:var(--clr-border-strong);background:var(--clr-primary-subtle)">Physician Portal</span>
+    <div class="logo-text">Palladium<span>Doc</span></div>
   </a>
   <div class="header-actions">
-    <span id="doc-name-display" class="user-identity-chip"></span>
     <button class="btn btn-ghost btn-sm" id="btn-sidebar-toggle" style="display:none" aria-label="Toggle Navigation">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="4" x2="20" y1="12" y2="12"/>
@@ -62,19 +60,19 @@
       <div id="doc-login-error" class="alert alert-danger" style="display:none"></div>
       <form id="form-doc-login">
         <div class="form-group">
-          <label for="doc-email">Institutional Medical Email</label>
-          <input id="doc-email" class="form-control" type="email" placeholder="dr.smith@healthbridge.org" required/>
+          <label for="doc-email">Institutional Email</label>
+          <input id="doc-email" class="form-control" type="email" placeholder="" required/>
         </div>
         <div class="form-group">
           <label for="doc-password">Account Password</label>
-          <input id="doc-password" class="form-control" type="password" placeholder="••••••••••••" required/>
+          <input id="doc-password" class="form-control" type="password" placeholder="" required/>
         </div>
         <button class="btn btn-primary btn-block" type="submit" id="btn-doc-login" style="margin-top:1.25rem">
-          Sign In to Practice Console
+          Sign In 
         </button>
       </form>
       <p style="text-align:center;font-size:var(--text-xs);color:var(--clr-muted);margin-top:1.25rem;line-height:1.45">
-        Staff onboarding: Authenticate using your credentials registered in the Firestore <code>doctors</code> collection.
+        Staff onboarding: Authenticate only using your credential.ㅤㅤㅤㅤㅤFor assistance  - darfgdsfgdsf
       </p>
     </div>
   </div>
@@ -173,7 +171,7 @@
             <table>
               <thead><tr><th>Patient ID</th><th>Date</th><th>Slot</th><th>Chief Complaint</th><th>Status</th><th>Review Actions</th></tr></thead>
               <tbody id="overview-appt-body">
-                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">Loading appointment records…</td></tr>
+                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">No recent consultation requests.</td></tr>
               </tbody>
             </table>
           </div>
@@ -197,7 +195,7 @@
             <table>
               <thead><tr><th>Patient ID</th><th>Date</th><th>Slot</th><th>Chief Complaint</th><th>Status</th><th>Review Actions</th></tr></thead>
               <tbody id="appt-table-body">
-                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">Loading appointment queue…</td></tr>
+                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">No appointments in the queue.</td></tr>
               </tbody>
             </table>
           </div>
@@ -215,8 +213,8 @@
           <form id="form-rx">
             <div class="form-row">
               <div class="form-group">
-                <label for="rx-pid">5-Character Patient ID</label>
-                <input id="rx-pid" class="form-control" type="text" placeholder="e.g. A7K2Q" style="text-transform:uppercase;font-family:var(--font-mono)" required/>
+                <label for="rx-pid">Patient UID</label>
+                <input id="rx-pid" class="form-control" type="text" style="text-transform:uppercase;font-family:var(--font-mono)" required/>
               </div>
               <div class="form-group">
                 <label for="rx-next-visit">Follow-up Appointment Date</label>
@@ -225,7 +223,7 @@
             </div>
             <div class="form-group">
               <label for="rx-diagnosis">Clinical Diagnosis</label>
-              <input id="rx-diagnosis" class="form-control" type="text" placeholder="e.g. Acute Bacterial Pharyngitis" required/>
+              <input id="rx-diagnosis" class="form-control" type="text"  required/>
             </div>
             <div class="form-group">
               <label for="rx-med-summary">Medication Summary Headline</label>
