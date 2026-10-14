@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HealthBridge — Clinical System Prototype</title>
+  <link rel="stylesheet" href="css/index.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- Notice Banner -->
+<div class="proto-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  Evaluation in progress - Prototype —  Not configured for production healthcare data.
+</div>
+
+<!-- Main App Header -->
+<header class="app-header">
+  <a href="index.html" class="logo-brand">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 6v12m-6-6h12"/>
+      </svg>
+    </div>
+    <div class="logo-text">Palladium<span>Healthcare</span></div>
+    <span class="logo-badge">V 3.2</span>
+  </a>
+</header>
+
+<!-- Main Container -->
+<main class="page-wrapper" style="max-width:920px;padding-top:3.5rem">
+
+  <!-- Hero Header -->
+  <div style="text-align:center;margin-bottom:3rem">
+    <h1 style="font-size:2.25rem;font-weight:800;letter-spacing:-0.03em;color:var(--brand-navy);margin-bottom:0.65rem">
+      Secure Healthcare Access Portal
+    </h1>
+    <p style="color:var(--clr-muted);font-size:1.02rem;max-width:540px;margin:0 auto;line-height:1.6">
+      Select your portal to proceed with verified clinical appointments, digital prescription issuance, and diagnostic report storage.
+    </p>
+  </div>
+
+  <!-- Portals Choice Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;margin-bottom:3.5rem">
+
+    <!-- Patient Portal Card -->
+    <a href="pages/patient.html" class="portal-card card-patient">
+      <div class="portal-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <h3 style="color:var(--clr-patient-accent)">Patient Portal</h3>
+      <p>
+        Access your medical file with your Patient ID and PIN. Schedule consultation slots, review doctor prescriptions, and download diagnostic scans.
+      </p>
+      <span class="btn btn-patient" style="margin-top:auto">
+        Enter Patient Portal
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- Doctor Portal Card -->
+    <a href="pages/doctor.html" class="portal-card card-doctor">
+      <div class="portal-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <h3 style="color:var(--clr-primary)">Physician Portal</h3>
+      <p>
+        Practitioner console for verified medical staff. Manage patient booking queues, authorize digital prescriptions with verification OTPs, and upload laboratory files.
+      </p>
+      <span class="btn btn-primary" style="margin-top:auto">
+        Physician Sign In
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </span>
+    </a>
+
+  </div>
+
+  <!-- Technical Standards / Features Grid -->
+  <section>
+    <div style="border-top:1px solid var(--clr-border);padding-top:2.5rem;margin-bottom:1.5rem">
+      <h2 style="font-size:1.15rem;font-weight:700;color:var(--brand-navy);margin-bottom:0.25rem">System Specifications & Architecture</h2>
+      <p style="font-size:var(--text-sm);color:var(--clr-muted)">Protocols operating across this prototype environment.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-box-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h4>PBKDF2-Salted PINs</h4>
+        <p>Zero plain credentials stored. Client derives 256-bit hashes with individual Patient ID salts.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-box-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+          </svg>
+        </div>
+        <h4>Brute-Force Guard</h4>
+        <p>15-minute lockout enforced on 5 failed attempts with unified response messages.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-box-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
+            <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01"/>
+          </svg>
+        </div>
+        <h4>QR & OTP Prescriptions</h4>
+        <p>Digital medical orders verified via QR scan and 6-digit one-time pharmacist codes.</p>
+      </div>
+
+
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>

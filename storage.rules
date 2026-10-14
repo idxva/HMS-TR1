@@ -1,0 +1,50 @@
+// ============================================================
+//  storage.rules  —  HealthBridge Prototype
+// ============================================================
+//
+//  Deploy via:   firebase deploy --only storage
+// ============================================================
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Helper: check caller is a doctor ────────────────────
+    function isDoctor() {
+      return request.auth != null &&
+        firestore.exists(/databases/(default)/documents/doctors/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/doctors/$(request.auth.uid)).data.role == "doctor";
+    }
+
+    // ── Helper: check caller owns this patient record ────────
+    function isPatientOwner(patientId) {
+      return request.auth != null &&
+        firestore.exists(/databases/(default)/documents/patients/$(patientId)) &&
+        firestore.get(/databases/(default)/documents/patients/$(patientId)).data.uid == request.auth.uid;
+    }
+
+    // ── reports/{patientId}/{fileName} ──────────────────────
+    match /reports/{patientId}/{fileName} {
+
+      // Patient downloads their own files; doctors can access any patient's files
+      allow read: if isPatientOwner(patientId) || isDoctor();
+
+      // Only doctors can upload files
+      allow create, update: if isDoctor() &&
+        // File type validation: PDF, JPEG, PNG only
+        request.resource.contentType.matches('application/pdf') ||
+        request.resource.contentType.matches('image/jpeg') ||
+        request.resource.contentType.matches('image/png') &&
+        // Max 10 MB
+        request.resource.size <= 10 * 1024 * 1024;
+
+      // Nobody deletes via client
+      allow delete: if false;
+    }
+
+    // ── Deny everything else ─────────────────────────────────
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

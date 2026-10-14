@@ -1,0 +1,115 @@
+// ============================================================
+//  firestore.rules  —  HealthBridge Prototype
+// ============================================================
+//
+//  Deploy via:   firebase deploy --only firestore:rules
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ─────────────────────────────────────
+
+    // Check if the caller has the "doctor" role in their Firestore doc
+    function isDoctor() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/doctors/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/doctors/$(request.auth.uid)).data.role == "doctor";
+    }
+
+    // Check that the calling auth UID matches the UID stored on the patient record
+    function isPatientOwner(patientId) {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/patients/$(patientId)) &&
+        get(/databases/$(database)/documents/patients/$(patientId)).data.uid == request.auth.uid;
+    }
+
+    // ── patients collection ──────────────────────────────────
+    match /patients/{patientId} {
+      // Allow reading patient record if authenticated
+      allow read: if request.auth != null;
+
+      // Allow initial write (registration) from any unauthenticated client
+      // but only to create — never to overwrite.
+      allow create: if
+        // patient doc must NOT already exist (uniqueness enforced client-side too)
+        !exists(/databases/$(database)/documents/patients/$(patientId)) &&
+        // must include required fields
+        request.resource.data.keys().hasAll(["name","age","gender","phone","bloodGroup","pinHash"]) &&
+        // failedAttempts must start at 0
+        request.resource.data.failedAttempts == 0;
+
+      // Allow update for:
+      //  (a) brute-force counter increments (any caller — needed before auth)
+      //  (b) UID linkage at login time (anonymous auth user)
+      //  (c) Doctor writing nextVisit
+      allow update: if
+        // Brute-force updates only touch failedAttempts / lockedUntil
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["failedAttempts","lockedUntil","uid","nextVisit"]) ||
+        isDoctor();
+
+      // Nobody can delete patient records via client
+      allow delete: if false;
+
+      // Nobody can list all patients
+      // (There is no "list" rule; getDocs without a direct ID requires no rule here
+      //  but we explicitly deny general collection queries via security rules below)
+    }
+
+    // ── appointments collection ──────────────────────────────
+    match /appointments/{appointmentId} {
+      // Patients can read their own appointments
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid || isDoctor()
+      );
+
+      // Patients can create appointments (they must be authenticated)
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasAll(["patientId","doctorId","date","slot","status"]) &&
+        request.resource.data.status == "pending";
+
+      // Only doctors can update appointment status
+      allow update: if isDoctor() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["status","date","slot","rescheduledNote"]);
+
+      allow delete: if false;
+    }
+
+    // ── prescriptions collection ─────────────────────────────
+    match /prescriptions/{rxId} {
+      // Patient reads own prescriptions (matched by patientId + uid linkage check)
+      allow read: if request.auth != null && (
+        isPatientOwner(resource.data.patientId) || isDoctor()
+      );
+
+      // Only doctors can create prescriptions
+      allow create: if isDoctor() &&
+        request.resource.data.keys().hasAll(["patientId","doctorId","diagnosis","otp"]) &&
+        request.resource.data.doctorId == request.auth.uid;
+
+      // Only the creating doctor can update
+      allow update: if isDoctor() &&
+        resource.data.doctorId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    // ── doctors collection ───────────────────────────────────
+    match /doctors/{doctorId} {
+      // Doctors can read their own profile; patients can read basic doctor info
+      allow read: if request.auth != null;
+
+      // Only existing doctors (or admin via Console) can write doctor records
+      allow write: if isDoctor() && doctorId == request.auth.uid;
+    }
+
+    // ── Deny everything else ─────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

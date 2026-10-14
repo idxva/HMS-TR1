@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en" class="portal-patient">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HealthBridge — Patient Portal</title>
+  <link rel="stylesheet" href="../css/patient.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet"/>
+  <!-- QR Code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body class="portal-patient">
+
+<!-- Prototype Notice Banner -->
+<div class="proto-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  Evaluation Prototype — Not configured for production healthcare data.
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <a href="../index.html" class="logo-brand">
+    <div class="logo-icon" style="background:linear-gradient(135deg, var(--clr-patient-accent), #1f5f58);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+    <div class="logo-text">Health<span>Bridge</span></div>
+    <span class="logo-badge" style="color:var(--clr-patient-accent);border-color:var(--clr-patient-border);background:var(--clr-patient-subtle)">Patient Portal</span>
+  </a>
+  <div class="header-actions" id="header-actions">
+    <span id="header-pid" class="user-identity-chip"></span>
+    <button class="btn btn-ghost btn-sm" id="btn-logout" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
+  </div>
+</header>
+
+<!-- Auth Section -->
+<section id="auth-section">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Auth Toggle Tabs -->
+      <div class="tab-links">
+        <button class="tab-link active" data-tab="login">Returning Patient</button>
+        <button class="tab-link" data-tab="register">New Registration</button>
+      </div>
+
+      <!-- ── LOGIN FORM ── -->
+      <div id="tab-login" class="tab-content active">
+        <h2>Patient Sign In</h2>
+        <p class="subtitle">Access your  consultation history and prescriptions.</p>
+
+        <div id="login-lockout" class="alert alert-danger" style="display:none"></div>
+        <div id="login-error"   class="alert alert-danger" style="display:none"></div>
+
+        <form id="form-login">
+          <div class="form-group">
+            <label for="login-pid">Patient ID</label>
+            <input id="login-pid" class="form-control" type="text" placeholder="e.g. S8725"
+                   maxlength="5" autocomplete="off" style="text-transform:uppercase;font-family:var(--font-body);letter-spacing:0.08em"/>
+          </div>
+          <div class="form-group">
+            <label for="login-pin">Security PIN</label>
+            <input id="login-pin" class="form-control" type="password"
+                   placeholder="••••" maxlength="4" inputmode="numeric" style="letter-spacing:0.2em"/>
+          </div>
+          <button class="btn btn-patient btn-block" type="submit" id="btn-login" style="margin-top:1.25rem">
+            Log In
+          </button>
+        </form>
+      </div>
+
+      <!-- ── REGISTER FORM ── -->
+      <div id="tab-register" class="tab-content">
+        <h2>Patient Registration</h2>
+        <p class="subtitle">Create your clinical profile .</p>
+
+        <div id="register-error" class="alert alert-danger" style="display:none"></div>
+
+        <!-- Step 1: Details -->
+        <div id="reg-step1">
+          <form id="form-register">
+            <div class="form-group">
+              <label for="reg-name">Full Name</label>
+              <input id="reg-name" class="form-control" type="text" placeholder="e.g. Jajin Kumar" required/>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-age">Age</label>
+                <input id="reg-age" class="form-control" type="number" placeholder="20" min="1" max="70" required/>
+              </div>
+              <div class="form-group">
+                <label for="reg-gender">Gender</label>
+                <select id="reg-gender" class="form-control" required>
+                  <option value="">Select Gender</option>
+                  <option>Female</option>
+                  <option>Male</option>
+                  <option>Non-binary</option>
+                  <option>Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-phone">Contact</label>
+                <input id="reg-phone" class="form-control" type="tel" placeholder="9876543210" required/>
+              </div>
+              <div class="form-group">
+                <label for="reg-blood">Blood Group</label>
+                <select id="reg-blood" class="form-control" required>
+                  <option value="">Select Group</option>
+                  <option>A+</option><option>A-</option>
+                  <option>B+</option><option>B-</option>
+                  <option>AB+</option><option>AB-</option>
+                  <option>O+</option><option>O-</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-pin">Digit PIN</label>
+                <input id="reg-pin" class="form-control" type="password"
+                       placeholder="••••" maxlength="4" inputmode="numeric" required style="letter-spacing:0.15em"/>
+              </div>
+              <div class="form-group">
+                <label for="reg-pin2">Confirm PIN</label>
+                <input id="reg-pin2" class="form-control" type="password"
+                       placeholder="••••" maxlength="4" inputmode="numeric" required style="letter-spacing:0.15em"/>
+              </div>
+            </div>
+            <button class="btn btn-patient btn-block" type="submit" id="btn-register" style="margin-top:1.2rem">
+              Generate Patient ID & Register
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: Show ID -->
+        <div id="reg-step2" style="display:none">
+          <div class="alert alert-success">
+            Patient record initialized in clinic database.
+          </div>
+          <p style="font-size:var(--text-sm);color:var(--clr-text-secondary);margin-bottom:0.25rem">
+            Assigned Patient Identification:
+          </p>
+          <div class="pid-display">
+            <div class="pid-value" id="new-pid">—</div>
+            <div class="pid-note">Store this identifier securely. It is required along with your PIN for future visits.</div>
+          </div>
+          <button class="btn btn-outline btn-block" id="btn-copy-pid">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+            </svg>
+            Copy Patient ID
+          </button>
+          <button class="btn btn-patient btn-block" id="btn-go-login" style="margin-top:0.6rem">
+            Proceed to Sign In
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14m-7-7 7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Dashboard Section ── -->
+<section id="dashboard-section" style="display:none">
+  <div class="page-wrapper">
+
+    <!-- Clinical Overview Stat Row -->
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-label">Patient Record</div>
+        <div class="stat-value" id="dash-pid" style="font-family:var(--font-serif);letter-spacing:0.06em"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Next Scheduled Consultation</div>
+        <div class="stat-value" id="dash-next-appt" style="font-size:1.18rem;font-weight:700">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Prescriptions</div>
+        <div class="stat-value" id="dash-rx-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Diagnostic Scans & Files</div>
+        <div class="stat-value" id="dash-files-count">0</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-section="appointments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Appointments
+      </button>
+      <button class="tab-btn" data-section="prescriptions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+          <line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>
+        </svg>
+        Prescriptions
+      </button>
+      <button class="tab-btn" data-section="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Diagnostic Reports
+      </button>
+    </div>
+
+    <!-- ── APPOINTMENTS TAB ── -->
+    <div id="section-appointments" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 2v4M16 2v4M3 10h18"/>
+              <rect width="18" height="18" x="3" y="4" rx="2"/>
+            </svg>
+            Schedule Clinical Appointment
+          </h3>
+        </div>
+
+        <div class="form-row" style="margin-bottom:1rem">
+          <div class="form-group">
+            <label for="appt-doctor">Physician</label>
+            <select id="appt-doctor" class="form-control">
+              <option value="">— Select Physician —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="appt-date">Consultation Date</label>
+            <input type="date" id="appt-date" class="form-control"/>
+          </div>
+        </div>
+
+        <div id="slot-area" style="display:none">
+          <label style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;color:var(--clr-text-secondary);display:block;margin-bottom:0.4rem">
+            Available Practitioner Slots
+          </label>
+          <div class="slot-grid" id="slot-grid"></div>
+        </div>
+
+        <div id="appt-reason-area" style="display:none;margin-top:1.25rem;border-top:1px dashed var(--clr-border);padding-top:1.25rem">
+          <div class="form-group">
+            <label for="appt-reason">Reason for Visit / Primary Symptoms</label>
+            <input id="appt-reason" class="form-control" type="text" placeholder="e.g. Follow-up consultation, headache, high fever.."/>
+          </div>
+          <button class="btn btn-patient" id="btn-book-appt">
+            Confirm Booking Request
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            My Appointments
+          </h3>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Physician</th><th>Time Slot</th><th>Chief Complaint</th><th>Status</th></tr></thead>
+            <tbody id="appt-table-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--clr-muted)">Loading appointment records…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRESCRIPTIONS TAB ── -->
+    <div id="section-prescriptions" class="tab-content">
+      <div id="rx-list">
+        <div class="alert alert-info">Retrieving prescriptions from clinic registry…</div>
+      </div>
+    </div>
+
+    <!-- ── REPORTS TAB ── -->
+    <div id="section-reports" class="tab-content">
+      <div id="files-list">
+        <div class="alert alert-info">Retrieving diagnostic files from secure storage…</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Prescription Detail Modal ── -->
+<div class="modal-backdrop hidden" id="rx-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-serif);font-size:1.35rem">Digital Medical Prescription</h3>
+      <button class="modal-close" id="rx-modal-close" aria-label="Close dialog">✕</button>
+    </div>
+    <div id="rx-modal-body"></div>
+    <div id="rx-qr-container" style="text-align:center;margin:1.25rem 0"></div>
+    <div id="rx-otp-section" style="margin-top:1rem;border-top:1px dashed var(--clr-border);padding-top:1rem">
+      <p style="font-size:var(--text-xs);color:var(--clr-muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;margin-bottom:0.35rem">
+        Pharmacist Dispense Verification Code
+      </p>
+      <div class="pid-display" style="border-color:var(--clr-success);background:#f0fdf4;padding:0.9rem">
+        <div class="pid-value" id="rx-otp-value" style="color:var(--clr-success);font-size:1.85rem"></div>
+      </div>
+      <p style="font-size:var(--text-xs);color:var(--clr-muted);text-align:center">Present this OTP or have the pharmacist scan the QR code above to fulfill.</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+//  Patient Portal — patient.html JavaScript
+// ============================================================
+import { auth, db, storage }   from "../js/firebase-config.js";
+import { hashPin, generatePatientId, showToast, copyToClipboard,
+         generateOTP, renderQR, MAX_ATTEMPTS, LOCK_DURATION,
+         formatDate, formatDateTime, setLoading }          from "../js/utils.js";
+
+import {
+  signInAnonymously, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  doc, getDoc, setDoc, addDoc, collection,
+  query, where, getDocs, updateDoc, serverTimestamp,
+  orderBy, Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  ref, listAll, getDownloadURL, getMetadata
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+// ── State ──────────────────────────────────────────────────
+let currentPid  = null;   // Patient ID string (5 chars)
+let currentUser = null;   // Firebase Auth user
+let selectedSlot = null;
+let selectedDoctorId = null;
+
+// ── Tab switching (auth) ───────────────────────────────────
+document.querySelectorAll(".tab-link").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-link").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const t = btn.dataset.tab;
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    document.getElementById(`tab-${t}`).classList.add("active");
+  });
+});
+
+// ── Dashboard tab switching ────────────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const s = btn.dataset.section;
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    document.getElementById(`section-${s}`).classList.add("active");
+  });
+});
+
+// ── Registration ───────────────────────────────────────────
+document.getElementById("form-register").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-register");
+  const errEl = document.getElementById("register-error");
+  errEl.style.display = "none";
+
+  const name   = document.getElementById("reg-name").value.trim();
+  const age    = parseInt(document.getElementById("reg-age").value);
+  const gender = document.getElementById("reg-gender").value;
+  const phone  = document.getElementById("reg-phone").value.trim();
+  const blood  = document.getElementById("reg-blood").value;
+  const pin    = document.getElementById("reg-pin").value;
+  const pin2   = document.getElementById("reg-pin2").value;
+
+  if (!/^\d{4}$/.test(pin)) {
+    errEl.textContent = "PIN must be exactly 4 digits."; errEl.style.display = "block"; return;
+  }
+  if (pin !== pin2) {
+    errEl.textContent = "PINs do not match."; errEl.style.display = "block"; return;
+  }
+
+  setLoading(btn, true);
+
+  try {
+    // 1. Ensure patient has an anonymous auth session
+    let user = auth.currentUser;
+    if (!user) {
+      const cred = await signInAnonymously(auth);
+      user = cred.user;
+    }
+
+    // 2. Generate unique Patient ID
+    let pid, exists = true;
+    let attempts = 0;
+    while (exists && attempts < 10) {
+      pid = generatePatientId();
+      try {
+        const snap = await getDoc(doc(db, "patients", pid));
+        exists = snap.exists();
+      } catch (readErr) {
+        // If security rules disallow reading unowned docs, assume available
+        exists = false;
+      }
+      attempts++;
+    }
+    if (exists) throw new Error("Could not generate a unique Patient ID. Please try again.");
+
+    // 3. Hash PIN with PID as salt
+    const pinHash = await hashPin(pin, pid);
+
+    // 4. Write to Firestore with uid linked
+    await setDoc(doc(db, "patients", pid), {
+      name, age, gender, phone, bloodGroup: blood,
+      pinHash, uid: user.uid,
+      failedAttempts: 0, lockedUntil: null,
+      createdAt: serverTimestamp()
+    });
+
+    // Show step 2
+    document.getElementById("new-pid").textContent = pid;
+    document.getElementById("reg-step1").style.display = "none";
+    document.getElementById("reg-step2").style.display = "block";
+    showToast("Account created! Note your Patient ID.", "success");
+
+    // Copy button
+    document.getElementById("btn-copy-pid").onclick = () =>
+      copyToClipboard(pid, document.getElementById("btn-copy-pid"));
+
+    // Go to login
+    document.getElementById("btn-go-login").onclick = () => {
+      document.getElementById("reg-step1").style.display = "block";
+      document.getElementById("reg-step2").style.display = "none";
+      document.getElementById("form-register").reset();
+      document.querySelector('[data-tab="login"]').click();
+      document.getElementById("login-pid").value = pid;
+    };
+
+  } catch (err) {
+    console.error("Registration error:", err);
+    let msg = err.message || "Registration failed.";
+    if (err.code === "permission-denied") {
+      msg = "Firestore Permission Denied. Please ensure your Firestore Security Rules allow read/write or are deployed.";
+    } else if (err.code === "auth/admin-restricted-operation" || err.code === "auth/operation-not-allowed") {
+      msg = "Anonymous Authentication is not enabled in Firebase Console. Go to Authentication -> Sign-in method -> Enable Anonymous.";
+    }
+    errEl.textContent = msg;
+    errEl.style.display = "block";
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+// ── Login ──────────────────────────────────────────────────
+document.getElementById("form-login").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn     = document.getElementById("btn-login");
+  const errEl   = document.getElementById("login-error");
+  const lockEl  = document.getElementById("login-lockout");
+  errEl.style.display  = "none";
+  lockEl.style.display = "none";
+
+  const pid = document.getElementById("login-pid").value.trim().toUpperCase();
+  const pin = document.getElementById("login-pin").value;
+
+  if (!pid || !pin) { errEl.textContent = "Please enter both fields."; errEl.style.display = "block"; return; }
+
+  setLoading(btn, true);
+
+  try {
+    // 1. Ensure anonymous authentication
+    let user = auth.currentUser;
+    if (!user) {
+      const cred = await signInAnonymously(auth);
+      user = cred.user;
+    }
+
+    const patRef  = doc(db, "patients", pid);
+    const patSnap = await getDoc(patRef);
+
+    // Generic error — do NOT reveal whether ID exists
+    const genericErr = () => {
+      errEl.textContent = "Invalid ID or PIN. Please try again.";
+      errEl.style.display = "block";
+    };
+
+    if (!patSnap.exists()) { genericErr(); setLoading(btn, false); return; }
+
+    const patData = patSnap.data();
+
+    // Check lockout
+    if (patData.lockedUntil) {
+      const lockTs = patData.lockedUntil.toMillis ? patData.lockedUntil.toMillis() : patData.lockedUntil;
+      const now    = Date.now();
+      if (now < lockTs) {
+        const remaining = Math.ceil((lockTs - now) / 60000);
+        lockEl.textContent = `Too many failed attempts. Please wait ${remaining} minute(s) before trying again.`;
+        lockEl.style.display = "block";
+        setLoading(btn, false); return;
+      } else {
+        await updateDoc(patRef, { failedAttempts: 0, lockedUntil: null });
+      }
+    }
+
+    // Verify PIN
+    const pinHash = await hashPin(pin, pid);
+    if (pinHash !== patData.pinHash) {
+      const fails = (patData.failedAttempts || 0) + 1;
+      const update = { failedAttempts: fails };
+      if (fails >= MAX_ATTEMPTS) {
+        update.lockedUntil = Timestamp.fromMillis(Date.now() + LOCK_DURATION);
+        lockEl.textContent = `Account locked for 15 minutes after ${MAX_ATTEMPTS} failed attempts.`;
+        lockEl.style.display = "block";
+      }
+      await updateDoc(patRef, update);
+      if (fails < MAX_ATTEMPTS) genericErr();
+      setLoading(btn, false); return;
+    }
+
+    // Reset failed attempts & ensure current user's UID is linked
+    await updateDoc(patRef, { failedAttempts: 0, lockedUntil: null, uid: user.uid });
+
+    currentPid  = pid;
+    currentUser = user;
+    loadDashboard(patData);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("login-error").textContent = "Sign-in failed. Please try again.";
+    document.getElementById("login-error").style.display = "block";
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+// ── Logout ─────────────────────────────────────────────────
+document.getElementById("btn-logout").addEventListener("click", async () => {
+  await signOut(auth);
+  currentPid  = null;
+  currentUser = null;
+  document.getElementById("auth-section").style.display     = "block";
+  document.getElementById("dashboard-section").style.display = "none";
+  document.getElementById("btn-logout").style.display = "none";
+  document.getElementById("header-pid").textContent = "";
+  document.getElementById("form-login").reset();
+  document.getElementById("form-register").reset();
+  showToast("Signed out.", "info");
+});
+
+// ── Load Dashboard ─────────────────────────────────────────
+async function loadDashboard(patData) {
+  document.getElementById("auth-section").style.display     = "none";
+  document.getElementById("dashboard-section").style.display = "block";
+  document.getElementById("btn-logout").style.display = "inline-flex";
+  document.getElementById("header-pid").textContent = `ID: ${currentPid}`;
+  document.getElementById("dash-pid").textContent = currentPid;
+
+  // Load all data in parallel
+  await Promise.all([
+    loadDoctors(),
+    loadAppointments(),
+    loadPrescriptions(),
+    loadFiles()
+  ]);
+}
+
+// ── Load Doctors (for booking) ─────────────────────────────
+async function loadDoctors() {
+  const sel   = document.getElementById("appt-doctor");
+  const snap  = await getDocs(collection(db, "doctors"));
+  sel.innerHTML = '<option value="">— Choose a doctor —</option>';
+  snap.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = `${d.data().name} — ${d.data().specialty || "General"}`;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener("change", fetchSlots);
+  document.getElementById("appt-date").addEventListener("change", fetchSlots);
+}
+
+// ── Fetch available slots ──────────────────────────────────
+async function fetchSlots() {
+  const doctorId = document.getElementById("appt-doctor").value;
+  const date     = document.getElementById("appt-date").value;
+  const slotArea = document.getElementById("slot-area");
+  const reasonArea = document.getElementById("appt-reason-area");
+  slotArea.style.display   = "none";
+  reasonArea.style.display = "none";
+  selectedSlot = null;
+  if (!doctorId || !date) return;
+
+  selectedDoctorId = doctorId;
+
+  // Default slot template (doctor config in production would store this in Firestore)
+  const allSlots = ["09:00","09:30","10:00","10:30","11:00","11:30",
+                    "14:00","14:30","15:00","15:30","16:00","16:30"];
+
+  // Get already-booked slots for this doctor+date
+  const q = query(
+    collection(db, "appointments"),
+    where("doctorId","==", doctorId),
+    where("date","==", date)
+  );
+  const booked = new Set();
+  (await getDocs(q)).forEach(d => booked.add(d.data().slot));
+
+  const grid = document.getElementById("slot-grid");
+  grid.innerHTML = "";
+  allSlots.forEach(slot => {
+    const btn = document.createElement("button");
+    btn.className = "slot-btn" + (booked.has(slot) ? " booked" : "");
+    btn.textContent = slot;
+    btn.type = "button";
+    if (!booked.has(slot)) {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedSlot = slot;
+        reasonArea.style.display = "block";
+      });
+    }
+    grid.appendChild(btn);
+  });
+  slotArea.style.display = "block";
+}
+
+// ── Book Appointment ───────────────────────────────────────
+document.getElementById("btn-book-appt").addEventListener("click", async () => {
+  if (!selectedSlot) { showToast("Please select a time slot.", "warning"); return; }
+  const reason = document.getElementById("appt-reason").value.trim() || "General";
+  const date   = document.getElementById("appt-date").value;
+  const docSel = document.getElementById("appt-doctor");
+  const docName = docSel.options[docSel.selectedIndex].text;
+
+  try {
+    await addDoc(collection(db, "appointments"), {
+      patientId: currentPid,
+      uid: currentUser.uid,
+      doctorId: selectedDoctorId,
+      doctorName: docName,
+      date, slot: selectedSlot, reason,
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    showToast("Appointment booked! Awaiting confirmation.", "success");
+    document.getElementById("appt-date").value = "";
+    document.getElementById("appt-doctor").value = "";
+    document.getElementById("slot-area").style.display   = "none";
+    document.getElementById("appt-reason-area").style.display = "none";
+    selectedSlot = null;
+    loadAppointments();
+  } catch (err) {
+    console.error(err);
+    showToast("Booking failed: " + err.message, "error");
+  }
+});
+
+// ── Load Appointments ──────────────────────────────────────
+async function loadAppointments() {
+  const tbody = document.getElementById("appt-table-body");
+  try {
+    const q    = query(
+      collection(db, "appointments"),
+      where("patientId","==", currentPid),
+      orderBy("date","desc")
+    );
+    const snap = await getDocs(q);
+    tbody.innerHTML = "";
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--clr-muted)">No appointments yet.</td></tr>';
+      document.getElementById("dash-next-appt").textContent = "—";
+      return;
+    }
+
+    // Find next upcoming appointment
+    const today = new Date().toISOString().split("T")[0];
+    let nextAppt = null;
+    snap.forEach(d => {
+      const data = d.data();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.doctorName || data.doctorId}</td>
+        <td>${data.slot}</td>
+        <td>${data.reason || "—"}</td>
+        <td><span class="badge badge-${data.status}">${data.status}</span></td>`;
+      tbody.appendChild(tr);
+      if (data.date >= today && data.status !== "rejected" && (!nextAppt || data.date < nextAppt.date)) {
+        nextAppt = data;
+      }
+    });
+
+    document.getElementById("dash-next-appt").textContent =
+      nextAppt ? `${nextAppt.date} ${nextAppt.slot}` : "—";
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = '<tr><td colspan="5">Failed to load.</td></tr>';
+  }
+}
+
+// ── Load Prescriptions ─────────────────────────────────────
+async function loadPrescriptions() {
+  const container = document.getElementById("rx-list");
+  try {
+    const q    = query(
+      collection(db, "prescriptions"),
+      where("patientId","==", currentPid),
+      orderBy("createdAt","desc")
+    );
+    const snap = await getDocs(q);
+    document.getElementById("dash-rx-count").textContent = snap.size;
+
+    if (snap.empty) {
+      container.innerHTML = '<div class="alert alert-info">No prescriptions yet.</div>';
+      return;
+    }
+
+    container.innerHTML = "";
+    snap.forEach(d => {
+      const rx = d.data();
+      const card = document.createElement("div");
+      card.className = "rx-card";
+      card.style.marginBottom = "1rem";
+      card.innerHTML = `
+        <div class="rx-header">
+          <div>
+            <div class="rx-title">Rx — ${rx.medicationSummary || "Prescription"}</div>
+            <div style="font-size:.8rem;color:var(--clr-muted)">${rx.doctorName || ""} &bull; ${formatDate(rx.createdAt)}</div>
+          </div>
+          <button class="btn btn-outline btn-sm" data-rxid="${d.id}">View Details</button>
+        </div>
+        <div style="font-size:.88rem;color:var(--clr-muted)">${rx.diagnosis || ""}</div>`;
+      card.querySelector("button").addEventListener("click", () => openRxModal(d.id, rx));
+      container.appendChild(card);
+    });
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div class="alert alert-danger">Failed to load prescriptions.</div>';
+  }
+}
+
+// ── Prescription Modal ─────────────────────────────────────
+function openRxModal(id, rx) {
+  const modal = document.getElementById("rx-modal");
+  document.getElementById("rx-modal-body").innerHTML = `
+    <div class="rx-body">
+      <table>
+        <tr><td>Doctor</td><td>${rx.doctorName || "—"}</td></tr>
+        <tr><td>Date</td><td>${formatDate(rx.createdAt)}</td></tr>
+        <tr><td>Diagnosis</td><td>${rx.diagnosis || "—"}</td></tr>
+        <tr><td>Medications</td><td>${rx.medications ? rx.medications.replace(/\n/g,"<br>") : "—"}</td></tr>
+        <tr><td>Next Visit</td><td>${rx.nextVisit || "—"}</td></tr>
+      </table>
+      ${rx.notes ? `<div class="rx-notes"><strong>Notes / Diet Plan:</strong><br>${rx.notes}</div>` : ""}
+    </div>`;
+
+  // OTP (generate fresh each view — pharmacist validates against Firestore stored OTP)
+  document.getElementById("rx-otp-value").textContent = rx.otp || "——";
+
+  // QR
+  const qrData = JSON.stringify({ rxId: id, pid: currentPid, otp: rx.otp });
+  const qrEl = document.getElementById("rx-qr-container");
+  qrEl.innerHTML = "";
+  setTimeout(() => {
+    if (typeof QRCode !== "undefined") {
+      new QRCode(qrEl, { text: qrData, width: 150, height: 150 });
+    }
+  }, 50);
+
+  modal.classList.remove("hidden");
+}
+
+document.getElementById("rx-modal-close").addEventListener("click", () => {
+  document.getElementById("rx-modal").classList.add("hidden");
+});
+document.getElementById("rx-modal").addEventListener("click", e => {
+  if (e.target === document.getElementById("rx-modal")) {
+    document.getElementById("rx-modal").classList.add("hidden");
+  }
+});
+
+// ── Load Reports (Storage files) ──────────────────────────
+async function loadFiles() {
+  const container = document.getElementById("files-list");
+  try {
+    const listRef = ref(storage, `reports/${currentPid}`);
+    const result  = await listAll(listRef);
+    document.getElementById("dash-files-count").textContent = result.items.length;
+
+    if (result.items.length === 0) {
+      container.innerHTML = '<div class="alert alert-info">No reports uploaded yet.</div>';
+      return;
+    }
+
+    container.innerHTML = '<div class="file-list" id="file-list-inner"></div>';
+    const inner = document.getElementById("file-list-inner");
+
+    for (const item of result.items) {
+      const url  = await getDownloadURL(item);
+      const meta = await getMetadata(item);
+      const ext  = item.name.split(".").pop().toLowerCase();
+      const icon = ext === "pdf" ? "📄" : ["jpg","jpeg","png"].includes(ext) ? "🖼️" : "📎";
+      const size = (meta.size / 1024).toFixed(1) + " KB";
+
+      const div = document.createElement("div");
+      div.className = "file-item";
+      div.innerHTML = `
+        <div class="file-icon">${icon}</div>
+        <div class="file-info">
+          <div class="file-name">${item.name}</div>
+          <div class="file-meta">${size} &bull; ${new Date(meta.timeCreated).toLocaleDateString()}</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="${url}" target="_blank" download="${item.name}">⬇ Download</a>`;
+      inner.appendChild(div);
+    }
+  } catch (err) {
+    if (err.code === "storage/object-not-found" || err.code === "storage/unauthorized") {
+      container.innerHTML = '<div class="alert alert-info">No reports uploaded yet.</div>';
+    } else {
+      console.error(err);
+      container.innerHTML = '<div class="alert alert-danger">Failed to load reports.</div>';
+    }
+  }
+}
+</script>
+</body>
+</html>

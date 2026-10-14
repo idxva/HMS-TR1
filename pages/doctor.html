@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" class="portal-doctor">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HealthBridge — Physician Console</title>
+  <link rel="stylesheet" href="../css/doctor.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body class="portal-doctor">
+
+<!-- Prototype Notice Banner -->
+<div class="proto-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  Evaluation Prototype —  Not configured for production healthcare data.
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <a href="../index.html" class="logo-brand">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </div>
+    <div class="logo-text">Health<span>Bridge</span></div>
+    <span class="logo-badge" style="color:var(--clr-primary);border-color:var(--clr-border-strong);background:var(--clr-primary-subtle)">Physician Portal</span>
+  </a>
+  <div class="header-actions">
+    <span id="doc-name-display" class="user-identity-chip"></span>
+    <button class="btn btn-ghost btn-sm" id="btn-sidebar-toggle" style="display:none" aria-label="Toggle Navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="12" y2="12"/>
+        <line x1="4" x2="20" y1="6" y2="6"/>
+        <line x1="4" x2="20" y1="18" y2="18"/>
+      </svg>
+    </button>
+    <button class="btn btn-ghost btn-sm" id="btn-logout" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
+  </div>
+</header>
+
+<!-- Login Screen -->
+<section id="login-section">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h2>Physician Console</h2>
+      <p class="subtitle">Secure authentication for licensed clinical practitioners.</p>
+      <div id="doc-login-error" class="alert alert-danger" style="display:none"></div>
+      <form id="form-doc-login">
+        <div class="form-group">
+          <label for="doc-email">Institutional Medical Email</label>
+          <input id="doc-email" class="form-control" type="email" placeholder="dr.smith@healthbridge.org" required/>
+        </div>
+        <div class="form-group">
+          <label for="doc-password">Account Password</label>
+          <input id="doc-password" class="form-control" type="password" placeholder="••••••••••••" required/>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="btn-doc-login" style="margin-top:1.25rem">
+          Sign In to Practice Console
+        </button>
+      </form>
+      <p style="text-align:center;font-size:var(--text-xs);color:var(--clr-muted);margin-top:1.25rem;line-height:1.45">
+        Staff onboarding: Authenticate using your credentials registered in the Firestore <code>doctors</code> collection.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Doctor Dashboard Layout -->
+<section id="dashboard-section" style="display:none">
+  <div class="app-layout">
+
+    <!-- Clinical Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">Practice Management</div>
+      <a href="#" class="active" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"/>
+          <rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/>
+          <rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        Overview
+      </a>
+      <a href="#" data-view="appointments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Patient Queue
+      </a>
+      <a href="#" data-view="prescriptions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+          <line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>
+        </svg>
+        Prescriptions
+      </a>
+      <a href="#" data-view="uploads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Diagnostic Uploads
+      </a>
+      <div class="sidebar-section">Verification</div>
+      <a href="#" data-view="verify-rx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 11 3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Verify Prescription
+      </a>
+    </nav>
+
+    <!-- Main Workspace Content -->
+    <main class="main-content">
+
+      <!-- ── OVERVIEW VIEW ── -->
+      <div id="view-overview" class="view-section">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.45rem">Clinical Summary</h2>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted)">Real-time status of incoming consultations and medical records.</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-label">Pending Requests</div>
+            <div class="stat-value" id="stat-pending">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Today's Consultations</div>
+            <div class="stat-value" id="stat-today">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Prescriptions Issued</div>
+            <div class="stat-value" id="stat-rx">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Uploaded Diagnostic Files</div>
+            <div class="stat-value" id="stat-files">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              Recent Consultation Requests
+            </h3>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Patient ID</th><th>Date</th><th>Slot</th><th>Chief Complaint</th><th>Status</th><th>Review Actions</th></tr></thead>
+              <tbody id="overview-appt-body">
+                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">Loading appointment records…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPOINTMENTS VIEW ── -->
+      <div id="view-appointments" class="view-section" style="display:none">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.45rem">Consultation Queue</h2>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted)">Accept, reschedule or mark appointments completed.</p>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;gap:0.4rem;margin-bottom:1.15rem;flex-wrap:wrap">
+            <button class="btn btn-sm btn-outline" id="filter-all">All Bookings</button>
+            <button class="btn btn-sm btn-ghost" id="filter-pending">Awaiting Review</button>
+            <button class="btn btn-sm btn-ghost" id="filter-accepted">Confirmed</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Patient ID</th><th>Date</th><th>Slot</th><th>Chief Complaint</th><th>Status</th><th>Review Actions</th></tr></thead>
+              <tbody id="appt-table-body">
+                <tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">Loading appointment queue…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PRESCRIPTIONS VIEW ── -->
+      <div id="view-prescriptions" class="view-section" style="display:none">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.45rem">Issue Digital Prescription</h2>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted)">Generate verified pharmacological regimens with tamper-resistant QR code and OTP verification.</p>
+        </div>
+
+        <div class="card">
+          <form id="form-rx">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="rx-pid">5-Character Patient ID</label>
+                <input id="rx-pid" class="form-control" type="text" placeholder="e.g. A7K2Q" style="text-transform:uppercase;font-family:var(--font-mono)" required/>
+              </div>
+              <div class="form-group">
+                <label for="rx-next-visit">Follow-up Appointment Date</label>
+                <input id="rx-next-visit" class="form-control" type="date"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="rx-diagnosis">Clinical Diagnosis</label>
+              <input id="rx-diagnosis" class="form-control" type="text" placeholder="e.g. Acute Bacterial Pharyngitis" required/>
+            </div>
+            <div class="form-group">
+              <label for="rx-med-summary">Medication Summary Headline</label>
+              <input id="rx-med-summary" class="form-control" type="text" placeholder="e.g. Amoxicillin 500mg, Paracetamol 650mg" required/>
+            </div>
+            <div class="form-group">
+              <label for="rx-medications">Detailed Dosages & Schedule (one entry per line)</label>
+              <textarea id="rx-medications" class="form-control" rows="4"
+                placeholder="Amoxicillin 500mg – 1 capsule – Twice daily (after meals) – 7 days&#10;Paracetamol 650mg – 1 tablet – Every 8 hours as needed for fever"
+                style="resize:vertical;font-family:var(--font-mono);font-size:var(--text-xs)"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="rx-notes">Dietary Recommendations & Clinical Advice</label>
+              <textarea id="rx-notes" class="form-control" rows="3"
+                placeholder="Maintain strict hydration (minimum 2.5L water/day). Avoid spicy or irritant foods. Return if fever exceeds 38.5°C."
+                style="resize:vertical"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit" id="btn-create-rx">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Authorize & Save Prescription
+            </button>
+          </form>
+
+          <!-- Prescription Preview (after creation) -->
+          <div id="rx-preview" style="display:none;margin-top:2rem">
+            <div style="border-top:1.5px dashed var(--clr-border);padding-top:1.5rem">
+              <h4 style="font-size:1.1rem;margin-bottom:1rem;color:var(--brand-navy)">Prescription Created & Signed</h4>
+              <div class="rx-card" id="rx-preview-card"></div>
+              <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:1.25rem;align-items:flex-start">
+                <div class="qr-panel">
+                  <div id="rx-qr-preview"></div>
+                  <p style="font-size:var(--text-xs);color:var(--clr-muted);margin-top:0.45rem">Scan to verify cryptographic record</p>
+                </div>
+                <div>
+                  <p style="font-size:var(--text-xs);text-transform:uppercase;font-weight:600;color:var(--clr-text-secondary);margin-bottom:0.35rem">
+                    Dispensation Verification OTP:
+                  </p>
+                  <div class="pid-display" style="border-color:var(--clr-success);background:#f0fdf4;padding:0.75rem 1.5rem">
+                    <div class="pid-value" id="rx-created-otp" style="color:var(--clr-success);font-size:1.6rem"></div>
+                  </div>
+                  <p style="font-size:var(--text-xs);color:var(--clr-muted);margin-top:0.35rem">Required by pharmacist prior to dispensing medications.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1.35rem">
+          <div class="card-header">
+            <h3>Prescription History Log</h3>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Patient ID</th><th>Authorized Date</th><th>Clinical Diagnosis</th><th>Verification OTP</th></tr></thead>
+              <tbody id="rx-table-body">
+                <tr><td colspan="4" style="text-align:center;color:var(--clr-muted)">Loading prescription log…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FILE UPLOAD VIEW ── -->
+      <div id="view-uploads" class="view-section" style="display:none">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.45rem">Upload Diagnostic Reports</h2>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted)">Attach laboratory panels, radiographic scans, or pathology files to patient records.</p>
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label for="upload-pid">Target Patient ID</label>
+            <input id="upload-pid" class="form-control" type="text" placeholder="e.g. A7K2Q" style="text-transform:uppercase;font-family:var(--font-mono);max-width:260px"/>
+          </div>
+
+          <div class="upload-zone" id="upload-zone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p><strong>Click to browse</strong> or drag & drop files here</p>
+            <p class="meta">Accepted formats: PDF, JPG, PNG &bull; Strict 10 MB per file limit</p>
+            <input type="file" id="file-input" style="display:none" multiple accept=".pdf,.jpg,.jpeg,.png"/>
+          </div>
+
+          <div id="upload-queue" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.6rem"></div>
+
+          <button class="btn btn-primary" id="btn-upload" style="margin-top:1rem;display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload to Patient File
+          </button>
+        </div>
+
+        <div class="card" style="margin-top:1.35rem">
+          <div class="card-header">
+            <h3>Existing Patient Files</h3>
+            <button class="btn btn-outline btn-sm" id="btn-view-files">Fetch Files</button>
+          </div>
+          <div class="form-group" style="margin-bottom:0.75rem">
+            <label for="view-pid">Search Files By Patient ID</label>
+            <input id="view-pid" class="form-control" type="text" placeholder="e.g. A7K2Q" style="text-transform:uppercase;font-family:var(--font-mono);max-width:240px"/>
+          </div>
+          <div id="existing-files-list"></div>
+        </div>
+      </div>
+
+      <!-- ── VERIFY RX VIEW ── -->
+      <div id="view-verify-rx" class="view-section" style="display:none">
+        <div style="margin-bottom:1.5rem">
+          <h2 style="font-size:1.45rem">Dispense & Prescription Verification</h2>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted)">Validate authenticity of digital prescriptions presented by patients.</p>
+        </div>
+
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="verify-rxid">Prescription ID (Document Hash / QR content)</label>
+              <input id="verify-rxid" class="form-control" type="text" placeholder="e.g. wR8k1..."/>
+            </div>
+            <div class="form-group">
+              <label for="verify-otp">6-Digit Dispense OTP</label>
+              <input id="verify-otp" class="form-control" type="text" maxlength="6" placeholder="123456" style="font-family:var(--font-mono);letter-spacing:0.15em"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-verify-rx">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Verify Prescription Integrity
+          </button>
+          <div id="verify-result" style="margin-top:1.25rem"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</section>
+
+<!-- Reschedule Consultation Modal -->
+<div class="modal-backdrop hidden" id="reschedule-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Reschedule Clinical Appointment</h3>
+      <button class="modal-close" id="reschedule-close" aria-label="Close dialog">✕</button>
+    </div>
+    <div class="form-group">
+      <label for="reschedule-date">New Proposed Date</label>
+      <input id="reschedule-date" class="form-control" type="date"/>
+    </div>
+    <div class="form-group">
+      <label for="reschedule-slot">New Proposed Slot</label>
+      <select id="reschedule-slot" class="form-control">
+        <option>09:00</option><option>09:30</option><option>10:00</option>
+        <option>10:30</option><option>11:00</option><option>11:30</option>
+        <option>14:00</option><option>14:30</option><option>15:00</option>
+        <option>15:30</option><option>16:00</option><option>16:30</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="reschedule-note">Physician Note to Patient (optional)</label>
+      <input id="reschedule-note" class="form-control" type="text" placeholder="e.g. Schedule adjustment due to surgical rotation"/>
+    </div>
+    <button class="btn btn-primary btn-block" id="btn-confirm-reschedule">Save Updated Schedule</button>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+//  Doctor Portal — doctor.html JavaScript
+// ============================================================
+import { auth, db, storage }   from "../js/firebase-config.js";
+import { generateOTP, showToast, formatDate, formatDateTime, setLoading } from "../js/utils.js";
+
+import {
+  signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  doc, getDoc, setDoc, addDoc, collection, query, where,
+  getDocs, updateDoc, serverTimestamp, orderBy, getCountFromServer
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  ref, uploadBytesResumable, getDownloadURL, listAll, getMetadata
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+// ── State ──────────────────────────────────────────────────
+let doctorUser = null;
+let doctorData = null;
+let currentRescheduleId = null;
+let pendingFiles = [];
+
+const ALLOWED_TYPES = ["application/pdf","image/jpeg","image/png"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+// ── Auth state ─────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    // Verify doctor role in Firestore
+    const dSnap = await getDoc(doc(db, "doctors", user.uid));
+    if (!dSnap.exists() || dSnap.data().role !== "doctor") {
+      await signOut(auth);
+      showError("Access denied. This portal is for doctors only.");
+      return;
+    }
+    doctorUser = user;
+    doctorData = dSnap.data();
+    enterDashboard();
+  } else {
+    doctorUser = null;
+    document.getElementById("login-section").style.display = "block";
+    document.getElementById("dashboard-section").style.display = "none";
+    document.getElementById("btn-logout").style.display = "none";
+  }
+});
+
+function showError(msg) {
+  document.getElementById("doc-login-error").textContent = msg;
+  document.getElementById("doc-login-error").style.display = "block";
+}
+
+// ── Doctor Login ───────────────────────────────────────────
+document.getElementById("form-doc-login").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-doc-login");
+  document.getElementById("doc-login-error").style.display = "none";
+  setLoading(btn, true);
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("doc-email").value,
+      document.getElementById("doc-password").value
+    );
+    // onAuthStateChanged handles the rest
+  } catch (err) {
+    showError("Invalid credentials. Please try again.");
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+// ── Enter Dashboard ────────────────────────────────────────
+async function enterDashboard() {
+  document.getElementById("login-section").style.display     = "none";
+  document.getElementById("dashboard-section").style.display = "block";
+  document.getElementById("btn-logout").style.display = "inline-flex";
+  document.getElementById("btn-sidebar-toggle").style.display = "inline-flex";
+  document.getElementById("doc-name-display").textContent =
+    `Dr. ${doctorData.name || doctorUser.email}`;
+
+  showView("overview");
+  loadOverview();
+  loadAppointmentTable(null, document.getElementById("appt-table-body"));
+  loadRxTable();
+}
+
+// ── Logout ─────────────────────────────────────────────────
+document.getElementById("btn-logout").addEventListener("click", async () => {
+  await signOut(auth);
+  showToast("Signed out.", "info");
+});
+
+// ── Sidebar navigation ─────────────────────────────────────
+document.querySelectorAll(".sidebar a").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    document.querySelectorAll(".sidebar a").forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+    showView(link.dataset.view);
+  });
+});
+
+document.getElementById("btn-sidebar-toggle").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("open");
+});
+
+function showView(name) {
+  document.querySelectorAll(".view-section").forEach(s => s.style.display = "none");
+  const el = document.getElementById(`view-${name}`);
+  if (el) el.style.display = "block";
+}
+
+// ── Overview ───────────────────────────────────────────────
+async function loadOverview() {
+  const today = new Date().toISOString().split("T")[0];
+  try {
+    const myAppts = query(
+      collection(db, "appointments"),
+      where("doctorId", "==", doctorUser.uid)
+    );
+    const snap = await getDocs(myAppts);
+    let pending = 0, todayCount = 0;
+    snap.forEach(d => {
+      if (d.data().status === "pending")    pending++;
+      if (d.data().date === today)          todayCount++;
+    });
+    document.getElementById("stat-pending").textContent = pending;
+    document.getElementById("stat-today").textContent   = todayCount;
+
+    // Rx count
+    const rxSnap = await getDocs(query(collection(db,"prescriptions"), where("doctorId","==",doctorUser.uid)));
+    document.getElementById("stat-rx").textContent = rxSnap.size;
+
+    // Load recent appts in overview table
+    loadAppointmentTable(null, document.getElementById("overview-appt-body"), true);
+  } catch(err) { console.error(err); }
+}
+
+// ── Appointment Table (shared by overview + appointments view) ──
+async function loadAppointmentTable(filter, tbody, limitRows = false) {
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">Loading…</td></tr>';
+  try {
+    let q = query(
+      collection(db, "appointments"),
+      where("doctorId","==", doctorUser.uid),
+      orderBy("date","desc")
+    );
+    const snap = await getDocs(q);
+    tbody.innerHTML = "";
+    let count = 0;
+    snap.forEach(d => {
+      if (limitRows && count >= 5) return;
+      const data = d.data();
+      if (filter && data.status !== filter) return;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${data.patientId}</strong></td>
+        <td>${data.date}</td>
+        <td>${data.slot}</td>
+        <td>${data.reason || "—"}</td>
+        <td><span class="badge badge-${data.status}">${data.status}</span></td>
+        <td>
+          ${data.status === "pending" ? `
+            <button class="btn btn-success btn-sm" data-id="${d.id}" data-action="accept">✓ Accept</button>
+            <button class="btn btn-ghost btn-sm" style="margin-left:.3rem" data-id="${d.id}" data-action="reschedule">↻ Reschedule</button>
+          ` : data.status === "accepted" ? `
+            <button class="btn btn-outline btn-sm" data-id="${d.id}" data-action="done">Mark Done</button>
+          ` : "—"}
+        </td>`;
+      tbody.appendChild(tr);
+      count++;
+    });
+
+    if (count === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--clr-muted)">No appointments.</td></tr>';
+
+    // Event delegation for action buttons
+    tbody.addEventListener("click", async e => {
+      const btn    = e.target.closest("[data-action]");
+      if (!btn) return;
+      const id     = btn.dataset.id;
+      const action = btn.dataset.action;
+
+      if (action === "accept") {
+        await updateDoc(doc(db,"appointments",id), { status: "accepted" });
+        showToast("Appointment accepted.", "success");
+        loadAppointmentTable(filter, tbody, limitRows);
+        loadOverview();
+      }
+      if (action === "done") {
+        await updateDoc(doc(db,"appointments",id), { status: "done" });
+        showToast("Marked as done.", "success");
+        loadAppointmentTable(filter, tbody, limitRows);
+        loadOverview();
+      }
+      if (action === "reschedule") {
+        currentRescheduleId = id;
+        document.getElementById("reschedule-modal").classList.remove("hidden");
+      }
+    }, { once: true }); // re-add each reload
+    // Fix: we should NOT use { once: true } because it fires only once. Re-adding is fine.
+  } catch(err) {
+    console.error(err);
+    tbody.innerHTML = '<tr><td colspan="6">Error loading.</td></tr>';
+  }
+}
+
+// Filter buttons
+["all","pending","accepted"].forEach(f => {
+  const btn = document.getElementById(`filter-${f}`);
+  if (btn) btn.addEventListener("click", () => {
+    ["all","pending","accepted"].forEach(x => document.getElementById(`filter-${x}`)?.classList.remove("btn-outline"));
+    btn.classList.add("btn-outline");
+    loadAppointmentTable(f === "all" ? null : f, document.getElementById("appt-table-body"));
+  });
+});
+
+// ── Reschedule Modal ───────────────────────────────────────
+document.getElementById("reschedule-close").addEventListener("click", () => {
+  document.getElementById("reschedule-modal").classList.add("hidden");
+});
+
+document.getElementById("btn-confirm-reschedule").addEventListener("click", async () => {
+  const date = document.getElementById("reschedule-date").value;
+  const slot = document.getElementById("reschedule-slot").value;
+  const note = document.getElementById("reschedule-note").value;
+  if (!date) { showToast("Please pick a new date.", "warning"); return; }
+  try {
+    await updateDoc(doc(db,"appointments", currentRescheduleId), {
+      date, slot, status: "accepted", rescheduledNote: note || ""
+    });
+    showToast("Appointment rescheduled.", "success");
+    document.getElementById("reschedule-modal").classList.add("hidden");
+    loadAppointmentTable(null, document.getElementById("appt-table-body"));
+    loadOverview();
+  } catch(err) { showToast("Error: " + err.message, "error"); }
+});
+
+// ── Create Prescription ────────────────────────────────────
+document.getElementById("form-rx").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-create-rx");
+  setLoading(btn, true);
+
+  const pid        = document.getElementById("rx-pid").value.trim().toUpperCase();
+  const diagnosis  = document.getElementById("rx-diagnosis").value.trim();
+  const medSummary = document.getElementById("rx-med-summary").value.trim();
+  const medications= document.getElementById("rx-medications").value.trim();
+  const notes      = document.getElementById("rx-notes").value.trim();
+  const nextVisit  = document.getElementById("rx-next-visit").value;
+
+  if (!pid || !diagnosis || !medSummary) {
+    showToast("Please fill in required fields.", "warning");
+    setLoading(btn, false); return;
+  }
+
+  // Verify patient exists
+  const patSnap = await getDoc(doc(db,"patients",pid));
+  if (!patSnap.exists()) {
+    showToast("Patient ID not found.", "error");
+    setLoading(btn, false); return;
+  }
+
+  const otp = generateOTP();
+
+  try {
+    const rxRef = await addDoc(collection(db,"prescriptions"), {
+      patientId: pid,
+      doctorId:  doctorUser.uid,
+      doctorName: `Dr. ${doctorData.name || doctorUser.email}`,
+      diagnosis, medicationSummary: medSummary,
+      medications, notes, nextVisit, otp,
+      createdAt: serverTimestamp()
+    });
+
+    // Update next visit in appointment / patient record
+    if (nextVisit) {
+      await updateDoc(doc(db,"patients",pid), { nextVisit });
+    }
+
+    // Show preview
+    showRxPreview(rxRef.id, pid, diagnosis, medSummary, medications, notes, nextVisit, otp);
+    showToast("Prescription created.", "success");
+    document.getElementById("form-rx").reset();
+    loadRxTable();
+  } catch(err) {
+    console.error(err);
+    showToast("Error creating prescription: " + err.message, "error");
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+function showRxPreview(id, pid, diagnosis, medSummary, medications, notes, nextVisit, otp) {
+  document.getElementById("rx-preview").style.display = "block";
+  document.getElementById("rx-preview-card").innerHTML = `
+    <div class="rx-header">
+      <div>
+        <div class="rx-title">Prescription — ${medSummary}</div>
+        <div style="font-size:.8rem;color:var(--clr-muted)">Patient: ${pid} &bull; Today</div>
+      </div>
+    </div>
+    <div class="rx-body">
+      <table>
+        <tr><td>Diagnosis</td><td>${diagnosis}</td></tr>
+        <tr><td>Medications</td><td>${(medications || "—").replace(/\n/g,"<br>")}</td></tr>
+        <tr><td>Next Visit</td><td>${nextVisit || "—"}</td></tr>
+      </table>
+      ${notes ? `<div class="rx-notes"><strong>Notes:</strong><br>${notes}</div>` : ""}
+    </div>`;
+
+  document.getElementById("rx-created-otp").textContent = otp;
+
+  const qrEl = document.getElementById("rx-qr-preview");
+  qrEl.innerHTML = "";
+  setTimeout(() => {
+    if (typeof QRCode !== "undefined") {
+      new QRCode(qrEl, {
+        text: JSON.stringify({ rxId: id, pid, otp }),
+        width: 140, height: 140
+      });
+    }
+  }, 50);
+}
+
+// ── Rx table ───────────────────────────────────────────────
+async function loadRxTable() {
+  const tbody = document.getElementById("rx-table-body");
+  try {
+    const q    = query(collection(db,"prescriptions"), where("doctorId","==",doctorUser.uid), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    tbody.innerHTML = "";
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--clr-muted)">No prescriptions yet.</td></tr>';
+      return;
+    }
+    snap.forEach(d => {
+      const rx = d.data();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${rx.patientId}</strong></td>
+        <td>${formatDate(rx.createdAt)}</td>
+        <td>${rx.diagnosis}</td>
+        <td><code>${rx.otp}</code></td>`;
+      tbody.appendChild(tr);
+    });
+  } catch(err) { console.error(err); }
+}
+
+// ── File Upload ────────────────────────────────────────────
+const uploadZone  = document.getElementById("upload-zone");
+const fileInput   = document.getElementById("file-input");
+const uploadQueue = document.getElementById("upload-queue");
+const btnUpload   = document.getElementById("btn-upload");
+
+uploadZone.addEventListener("click", () => fileInput.click());
+uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("drag-over"); });
+uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag-over"));
+uploadZone.addEventListener("drop", e => {
+  e.preventDefault();
+  uploadZone.classList.remove("drag-over");
+  handleFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener("change", () => handleFiles([...fileInput.files]));
+
+function handleFiles(files) {
+  files.forEach(file => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      showToast(`${file.name}: Only PDF, JPG, PNG allowed.`, "warning"); return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      showToast(`${file.name}: File exceeds 10 MB limit.`, "warning"); return;
+    }
+    pendingFiles.push(file);
+    const item = document.createElement("div");
+    item.className = "file-item";
+    item.innerHTML = `
+      <div class="file-icon">${file.type.includes("pdf") ? "📄" : "🖼️"}</div>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-meta">${(file.size/1024).toFixed(1)} KB</div>
+      </div>
+      <div class="progress-bar-wrap" style="width:120px"><div class="progress-bar" id="pb-${file.name.replace(/\s/g,'_')}"></div></div>`;
+    uploadQueue.appendChild(item);
+  });
+  if (pendingFiles.length > 0) btnUpload.style.display = "inline-flex";
+}
+
+document.getElementById("btn-upload").addEventListener("click", async () => {
+  const pid = document.getElementById("upload-pid").value.trim().toUpperCase();
+  if (!pid) { showToast("Enter a Patient ID first.", "warning"); return; }
+
+  // Verify patient
+  const patSnap = await getDoc(doc(db,"patients",pid));
+  if (!patSnap.exists()) { showToast("Patient ID not found.", "error"); return; }
+
+  for (const file of pendingFiles) {
+    const safeName = file.name.replace(/\s/g,"_");
+    const storRef  = ref(storage, `reports/${pid}/${Date.now()}_${safeName}`);
+    const task     = uploadBytesResumable(storRef, file);
+    const pbEl     = document.getElementById(`pb-${safeName}`) || document.createElement("div");
+
+    await new Promise((resolve, reject) => {
+      task.on("state_changed",
+        snap => {
+          const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+          pbEl.style.width = pct + "%";
+        },
+        err => { showToast(`${file.name}: Upload failed.`, "error"); reject(err); },
+        () => {
+          pbEl.style.background = "var(--clr-success)";
+          resolve();
+        }
+      );
+    });
+  }
+
+  showToast(`${pendingFiles.length} file(s) uploaded successfully.`, "success");
+  pendingFiles = [];
+  uploadQueue.innerHTML = "";
+  btnUpload.style.display = "none";
+  // update stat
+  try {
+    const listRef = ref(storage, `reports/${pid}`);
+    const all = await listAll(listRef);
+    document.getElementById("stat-files").textContent = all.items.length;
+  } catch {}
+});
+
+// ── View patient files ─────────────────────────────────────
+document.getElementById("btn-view-files").addEventListener("click", async () => {
+  const pid = document.getElementById("view-pid").value.trim().toUpperCase();
+  const container = document.getElementById("existing-files-list");
+  if (!pid) { showToast("Enter a Patient ID.", "warning"); return; }
+
+  container.innerHTML = "<p style='color:var(--clr-muted);font-size:.88rem'>Loading…</p>";
+  try {
+    const listRef = ref(storage, `reports/${pid}`);
+    const result  = await listAll(listRef);
+    if (result.items.length === 0) {
+      container.innerHTML = '<div class="alert alert-info">No files for this patient.</div>'; return;
+    }
+    container.innerHTML = '<div class="file-list" id="inner-files"></div>';
+    const inner = document.getElementById("inner-files");
+    for (const item of result.items) {
+      const url  = await getDownloadURL(item);
+      const meta = await getMetadata(item);
+      const ext  = item.name.split(".").pop().toLowerCase();
+      const icon = ext === "pdf" ? "📄" : ["jpg","jpeg","png"].includes(ext) ? "🖼️" : "📎";
+      const div  = document.createElement("div");
+      div.className = "file-item";
+      div.innerHTML = `
+        <div class="file-icon">${icon}</div>
+        <div class="file-info">
+          <div class="file-name">${item.name}</div>
+          <div class="file-meta">${(meta.size/1024).toFixed(1)} KB</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="${url}" target="_blank">Open</a>`;
+      inner.appendChild(div);
+    }
+  } catch(err) {
+    container.innerHTML = '<div class="alert alert-danger">Error loading files.</div>';
+  }
+});
+
+// ── Verify Prescription ────────────────────────────────────
+document.getElementById("btn-verify-rx").addEventListener("click", async () => {
+  const rxId = document.getElementById("verify-rxid").value.trim();
+  const otp  = document.getElementById("verify-otp").value.trim();
+  const resultEl = document.getElementById("verify-result");
+
+  if (!rxId || !otp) {
+    resultEl.innerHTML = '<div class="alert alert-warning">Enter both fields.</div>'; return;
+  }
+
+  try {
+    const rxSnap = await getDoc(doc(db,"prescriptions", rxId));
+    if (!rxSnap.exists()) {
+      resultEl.innerHTML = '<div class="alert alert-danger">❌ Prescription not found.</div>'; return;
+    }
+    const rx = rxSnap.data();
+    if (rx.otp === otp) {
+      resultEl.innerHTML = `
+        <div class="alert alert-success">✅ Valid Prescription</div>
+        <div class="rx-card">
+          <div class="rx-header">
+            <div class="rx-title">Patient: ${rx.patientId}</div>
+            <div style="font-size:.8rem;color:var(--clr-muted)">${formatDate(rx.createdAt)}</div>
+          </div>
+          <table>
+            <tr><td>Diagnosis</td><td>${rx.diagnosis}</td></tr>
+            <tr><td>Medications</td><td>${(rx.medications||"—").replace(/\n/g,"<br>")}</td></tr>
+          </table>
+        </div>`;
+    } else {
+      resultEl.innerHTML = '<div class="alert alert-danger">❌ Invalid OTP. This prescription could not be verified.</div>';
+    }
+  } catch(err) {
+    resultEl.innerHTML = '<div class="alert alert-danger">Error verifying.</div>';
+  }
+});
+</script>
+</body>
+</html>
