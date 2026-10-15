@@ -272,7 +272,7 @@ h3 {
   font-weight: 600;
 }
 
-/* ---------- Forms & Inputs ---------- */
+/* ---------- Forms & Inputs -------xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx--- */
 .form-group {
   margin-bottom: 1.15rem;
 }
@@ -283,17 +283,17 @@ h3 {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--clr-text-secondary);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.60rem;
 }
 .form-control {
   width: 100%;
-  padding: 1.0rem 0.95rem;
+  padding: 0.85rem 0.95rem;
   border: 1.5px solid var(--clr-border);
   border-radius: var(--radius-sm);
   font-size: var(--text-base);
   font-family: var(--font-body);
   color: var(--clr-text);
-  background: #ffffff;
+  background: #000000de;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 .form-control::placeholder {
