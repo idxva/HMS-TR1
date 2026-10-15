@@ -200,8 +200,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: var(--clr-surface-alt);
-  border: 1px solid var(--clr-border);
   padding: 0.3rem 0.75rem;
   border-radius: var(--radius-pill);
   font-size: var(--text-xs);
@@ -221,7 +219,7 @@ body {
 }
 
 .auth-wrapper {
-  min-height: calc(100vh - 120px);
+  min-height: calc(90vh - 120px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -289,7 +287,7 @@ h3 {
 }
 .form-control {
   width: 100%;
-  padding: 0.68rem 0.95rem;
+  padding: 1.0rem 0.95rem;
   border: 1.5px solid var(--clr-border);
   border-radius: var(--radius-sm);
   font-size: var(--text-base);
@@ -569,7 +567,6 @@ th {
   text-align: left;
   font-size: var(--text-xs);
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--clr-muted);
   white-space: nowrap;
