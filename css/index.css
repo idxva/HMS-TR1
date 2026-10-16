@@ -16,48 +16,49 @@
 /* ---------- Design Tokens ---------- */
 :root {
   /* Brand / Mood */
-  --brand-navy:       #0e2433;
-  --brand-navy-light: #18354b;
-  --brand-navy-muted: #2d4c63;
+  --brand-navy:       #161e22;
+  --brand-navy-light: #202b30;
+  --brand-navy-muted: #38464d;
 
-  /* Primary Palette (Doctor / Clinical Focus: Slate Teal) */
-  --clr-primary:      #1b4965;
-  --clr-primary-d:    #13374d;
-  --clr-primary-subtle:#eaf2f7;
-  --clr-primary-glow:  rgba(27, 73, 101, 0.12);
+  /* Primary Palette (Doctor / Clinical Focus: Sage Green - #567568) */
+  --clr-primary:      #476659;
+  --clr-primary-d:    #344e43;
+  --clr-primary-subtle:#eef4f1;
+  --clr-primary-glow:  rgba(86, 117, 104, 0.16);
 
-  /* Patient Identity Accent (Calm Sea Green / Eucalyptus) */
-  --clr-patient-accent:   #2a7b72;
-  --clr-patient-subtle:   #edf7f5;
-  --clr-patient-border:   #c2e3de;
+  /* Patient Identity Accent (Amethyst Purple - #966B9D) */
+  --clr-patient-accent:   #86558e;
+  --clr-patient-d:        #6e4375;
+  --clr-patient-subtle:   #f8f2f9;
+  --clr-patient-border:   #d8bfde;
 
   /* Functional Status Accents */
-  --clr-success:        #1f7a55;
-  --clr-success-subtle: #eef8f2;
-  --clr-success-border: #b8e2cb;
+  --clr-success:        #386653;
+  --clr-success-subtle: #edf6f1;
+  --clr-success-border: #b8decb;
 
-  --clr-warning:        #b45309;
-  --clr-warning-subtle: #fffbeb;
-  --clr-warning-border: #fde68a;
+  --clr-warning:        #c26e25;
+  --clr-warning-subtle: #fdf6ee;
+  --clr-warning-border: #f2b880;
 
-  --clr-danger:         #b91c1c;
-  --clr-danger-subtle:  #fef2f2;
-  --clr-danger-border:  #fecaca;
+  --clr-danger:         #b54848;
+  --clr-danger-subtle:  #fdf2f2;
+  --clr-danger-border:  #c98686;
 
-  --clr-info:           #0284c7;
-  --clr-info-subtle:    #f0f9ff;
-  --clr-info-border:    #bae6fd;
+  --clr-info:           #19647e;
+  --clr-info-subtle:    #eef7f9;
+  --clr-info-border:    #9ad4db;
 
   /* Neutrals & Surfaces */
-  --clr-bg:             #f7f9fa;
+  --clr-bg:             #f8f9fa;
   --clr-surface:        #ffffff;
-  --clr-surface-alt:    #f1f5f7;
-  --clr-border:         #e2e8ec;
-  --clr-border-strong:  #cbd5de;
-  --clr-text:           #1e293b;
-  --clr-text-secondary: #475569;
-  --clr-muted:          #64748b;
-  --clr-muted-light:    #94a3b8;
+  --clr-surface-alt:    #f0f3f3;
+  --clr-border:         #e0e5e6;
+  --clr-border-strong:  #c8d0d2;
+  --clr-text:           #1b2427;
+  --clr-text-secondary: #475459;
+  --clr-muted:          #6a777d;
+  --clr-muted-light:    #9ba7ac;
 
   /* Typography */
   --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -262,7 +263,7 @@ h3 {
   color: #ffffff;
 }
 .btn-patient:hover:not(:disabled) {
-  background-color: #21615a;
+  background-color: var(--clr-patient-d, #6e4375);
 }
 
 /* ---------- Landing Page Hero Elements ---------- */

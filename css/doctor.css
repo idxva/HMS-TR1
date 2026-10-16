@@ -15,49 +15,50 @@
 
 /* ---------- Design Tokens ---------- */
 :root {
-  /* Brand / Mood */
-  --brand-navy:       #0e2433;
-  --brand-navy-light: #18354b;
-  --brand-navy-muted: #2d4c63;
+  /* Brand / Mood (Doctor Portal: Deep Sage Forest Navy) */
+  --brand-navy:       #13221c;
+  --brand-navy-light: #1c332a;
+  --brand-navy-muted: #2c4d40;
 
-  /* Primary Palette (Doctor / Clinical Focus: Slate Teal) */
-  --clr-primary:      #1b4965;
-  --clr-primary-d:    #13374d;
-  --clr-primary-subtle:#eaf2f7;
-  --clr-primary-glow:  rgba(27, 73, 101, 0.12);
+  /* Primary Palette (Doctor / Clinical Focus: Sage Green - #567568) */
+  --clr-primary:      #476659;
+  --clr-primary-d:    #344e43;
+  --clr-primary-subtle:#eef4f1;
+  --clr-primary-glow:  rgba(86, 117, 104, 0.16);
 
-  /* Patient Identity Accent (Calm Sea Green / Eucalyptus) */
-  --clr-patient-accent:   #2a7b72;
-  --clr-patient-subtle:   #edf7f5;
-  --clr-patient-border:   #c2e3de;
+  /* Patient & Clinical Identity Accent (Rich Plum Wine / Rose) */
+  --clr-patient-accent:   #9a275a;
+  --clr-patient-d:        #7a1a44;
+  --clr-patient-subtle:   #fbf0f4;
+  --clr-patient-border:   #f0cad8;
 
   /* Functional Status Accents */
-  --clr-success:        #1f7a55;
-  --clr-success-subtle: #eef8f2;
-  --clr-success-border: #b8e2cb;
+  --clr-success:        #386653;
+  --clr-success-subtle: #edf6f1;
+  --clr-success-border: #b8decb;
 
-  --clr-warning:        #b45309;
-  --clr-warning-subtle: #fffbeb;
-  --clr-warning-border: #fde68a;
+  --clr-warning:        #c26e25;
+  --clr-warning-subtle: #fdf6ee;
+  --clr-warning-border: #f2b880;
 
-  --clr-danger:         #b91c1c;
-  --clr-danger-subtle:  #fef2f2;
-  --clr-danger-border:  #fecaca;
+  --clr-danger:         #9a275a;
+  --clr-danger-subtle:  #fdf0f4;
+  --clr-danger-border:  #e36588;
 
-  --clr-info:           #0284c7;
-  --clr-info-subtle:    #f0f9ff;
-  --clr-info-border:    #bae6fd;
+  --clr-info:           #226b80;
+  --clr-info-subtle:    #eef7f9;
+  --clr-info-border:    #9ad4db;
 
   /* Neutrals & Surfaces */
-  --clr-bg:             #f7f9fa;
+  --clr-bg:             #f7f9f8;
   --clr-surface:        #ffffff;
-  --clr-surface-alt:    #f1f5f7;
-  --clr-border:         #e2e8ec;
-  --clr-border-strong:  #cbd5de;
-  --clr-text:           #1e293b;
-  --clr-text-secondary: #475569;
-  --clr-muted:          #64748b;
-  --clr-muted-light:    #94a3b8;
+  --clr-surface-alt:    #edf2ef;
+  --clr-border:         #dbe4df;
+  --clr-border-strong:  #c1cec7;
+  --clr-text:           #182520;
+  --clr-text-secondary: #3f5049;
+  --clr-muted:          #62746d;
+  --clr-muted-light:    #95a59e;
 
   /* Typography */
   --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;

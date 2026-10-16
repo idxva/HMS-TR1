@@ -26,14 +26,14 @@
 <!-- Header -->
 <header class="app-header">
   <a href="../index.html" class="logo-brand">
-    <div class="logo-icon" style="background:linear-gradient(135deg, var(--clr-patient-accent), #1f5f58);">
+    <div class="logo-icon" style="background:linear-gradient(135deg, var(--clr-patient-accent), var(--clr-patient-d));">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
       </svg>
     </div>
     <div class="logo-text">Palladium<span>Doc</span></div>
-    <span class="logo-badge" style="color:var(--clr-patient-accent);border-color:var(--clr-patient-border);">Patient Portal</span>
+    <span class="logo-badge" style="color:var(--clr-patient-accent);border-color:var(--clr-patient-border);">V16M102026</span>
   </a>
   <div class="header-actions" id="header-actions">
     <span id="header-pid" class="user-identity-chip"></span>
@@ -62,14 +62,13 @@
       <!-- ── LOGIN FORM ── -->
       <div id="tab-login" class="tab-content active">
         <h2>Patient Sign In</h2>
-        <p class="subtitle">Access your  consultation history and prescriptions.</p>
 
         <div id="login-lockout" class="alert alert-danger" style="display:none"></div>
         <div id="login-error"   class="alert alert-danger" style="display:none"></div>
 
         <form id="form-login">
           <div class="form-group">
-            <label for="login-pid">Patient ID</label>
+            <label for="login-pid">UID</label>
             <input id="login-pid" class="form-control" type="text" placeholder=""
                    maxlength="5" autocomplete="off" style="text-transform:uppercase;font-family:var(--font-body);letter-spacing:0.08em"/>
           </div>
